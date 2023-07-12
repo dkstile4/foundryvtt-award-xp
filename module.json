@@ -2,7 +2,7 @@
 	"id": "award-xp",
 	"title": "Award XP",
 	"description": "Award Experience to the group, the value of which will awarded to each player, or divided evenly between the players and automatically update their character sheets.",
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"compatibility": {
 		"minimum": "9",
 		"compatibleCoreVersion": "11"
@@ -80,15 +80,6 @@
 			}
 		}]
 	},
-	"systems": [
-		"age-of-sigmar-soulbound",
-		"dnd5e",
-		"pf1",
-		"pf2e",
-		"sfrpg",
-		"splittermond",
-		"sw5e"
-	],
 	"languages": [
 		{
 			"lang": "en",
