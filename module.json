@@ -102,9 +102,9 @@
 			"path": "lang/pt-BR.json"
 		}
 	],
-	"url": "https://github.com/manuelVo/foundryvtt-award-xp",
-	"manifest": "https://raw.githubusercontent.com/manuelVo/foundryvtt-award-xp/master/module.json",
-	"download": "https://github.com/manuelVo/foundryvtt-award-xp/archive/v1.5.1.zip",
+	"url": "https://github.com/dkstile4/foundryvtt-award-xp/",
+	"manifest": "https://raw.githubusercontent.com/dkstile4/foundryvtt-award-xp/develop/module.json",
+	"download": "https://github.com/dkstile4/foundryvtt-award-xp/archive/refs/tags/V1.5.2.zip",
 	"readme": "https://github.com/manuelVo/foundryvtt-award-xp/blob/master/README.md",
 	"changelog": "https://github.com/manuelVo/foundryvtt-award-xp/blob/master/CHANGELOG.md",
 	"bugs": "https://github.com/manuelVo/foundryvtt-award-xp/issues",
