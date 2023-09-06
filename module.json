@@ -4,9 +4,8 @@
 	"description": "Award Experience to the group, the value of which will awarded to each player, or divided evenly between the players and automatically update their character sheets.",
 	"version": "1.5.3",
 	"compatibility": {
-		"minimum": "9",
-		"verified": "11",
-		"compatibleCoreVersion": "11"
+		"minimum": "10",
+		"verified": "11"
 	},
 	"authors": [
 		{
