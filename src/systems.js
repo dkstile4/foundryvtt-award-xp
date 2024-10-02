@@ -14,7 +14,7 @@ export function preparePcData(characters) {
 				return {
 					actor: actor,
 					xp: actor.system.details.xp.value,
-					xpAttribute: "details.xp.value",
+					xpAttribute: "data.details.xp.value",
 					nextLevelXp: actor.system.details.xp.max,
 				}
 			});
