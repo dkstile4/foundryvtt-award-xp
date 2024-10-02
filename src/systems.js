@@ -14,7 +14,7 @@ export function preparePcData(characters) {
 				return {
 					actor: actor,
 					xp: actor.system.details.xp.value,
-					xpAttribute: "data.details.xp.value",
+					xpAttribute: "system.details.xp.value",
 					nextLevelXp: actor.system.details.xp.max,
 				}
 			});
@@ -33,7 +33,7 @@ export function preparePcData(characters) {
 				return {
 					actor: actor,
 					xp: typeof freeXp === 'string' ? parseInt(freeXp) : freeXp,
-					xpAttribute: "experience.free",
+					xpAttribute: "system.experience.free",
 					nextLevelXp: actor.system.experience.nextLevelValue
 				}
 			});
