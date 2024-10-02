@@ -13,9 +13,9 @@ export function preparePcData(characters) {
 			return characters.map(actor => {
 				return {
 					actor: actor,
-					xp: actor.data.data.details.xp.value,
-					xpAttribute: "data.details.xp.value",
-					nextLevelXp: actor.data.data.details.xp.max,
+					xp: actor.system.details.xp.value,
+					xpAttribute: "details.xp.value",
+					nextLevelXp: actor.system.details.xp.max,
 				}
 			});
 		case "age-of-sigmar-soulbound":
@@ -23,18 +23,18 @@ export function preparePcData(characters) {
 				return {
 					actor: actor,
 					xp: actor.experience.total,
-					xpAttribute: "data.experience.total",
+					xpAttribute: "experience.total",
 					nextLevelXp: undefined
 				}
 			});
 		case "splittermond":
 			return characters.map(actor => {
-				let freeXp = actor.data.data.experience.free;
+				let freeXp = actor.system.experience.free;
 				return {
 					actor: actor,
 					xp: typeof freeXp === 'string' ? parseInt(freeXp) : freeXp,
-					xpAttribute: "data.experience.free",
-					nextLevelXp: actor.data.data.experience.nextLevelValue
+					xpAttribute: "experience.free",
+					nextLevelXp: actor.system.experience.nextLevelValue
 				}
 			});
 	}
