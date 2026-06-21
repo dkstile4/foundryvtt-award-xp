@@ -6,7 +6,11 @@
 	<table class="award-xp-char-filter-list">
 		<tr><th colspan="2">{{localize "award-xp.characters"}}</th><th></th></tr>
 		{{#each characters}}
-			{{> awardXpRowTemplate}}
+			<tr>
+				<td class="award-xp-char-img-box"><img src="{{this.image}}" /></td>
+				<td>{{this.name}}</td>
+				<td><button type="button" data-actor="{{this.id}}" class="award-xp-remove-character"><i class="fas fa-trash"></i></button></td>
+			</tr>
 		{{/each}}
 	</table>
 	<button type="button" id="award-xp-filter-add-character">+</button>
