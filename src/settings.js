@@ -8,7 +8,7 @@ const BaseFormApplication = api.FormApplicationV2 ?? FormApplication;
 
 export const settingsKey = "award-xp";
 
-export function registerSettings() {
+export async function registerSettings() {
 	game.settings.registerMenu(settingsKey, "character-filter-menu", {
 		name: "award-xp.settings.filter-character.name",
 		hint: "award-xp.settings.filter-character.hint",
