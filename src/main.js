@@ -10,16 +10,27 @@ Hooks.once("init", () => {
 	registerKeybindings();
 })
 
-Hooks.on("renderActorDirectory", async (actor_directory, html, data) => {
-	// Only show the award xp button to the gm
-	if (!game.user.isGM)
-		return
-	const awardButton = $(`<button><i class="fas fa-angle-double-up"></i>${game.i18n.localize("award-xp.award-xp")}</button>`)
-	html.find(".directory-footer").append(awardButton)
-	awardButton.click((event) => {
+Hooks.on("renderActorDirectory", (actorDirectory, html) => {
+	addAwardXpButtonToActorDirectory(actorDirectory, html)
+})
+Hooks.on("renderSidebarTab", (app, html) => {
+	if (app?.constructor?.name === "ActorDirectory") {
+		addAwardXpButtonToActorDirectory(app, html)
+	}
+})
+
+function addAwardXpButtonToActorDirectory(actorDirectory, html) {
+	if (!game.user.isGM) return
+	if (html.find(".award-xp-open-dialog").length) return
+
+	const awardButton = $(`<button type="button" class="award-xp-open-dialog"><i class="fas fa-angle-double-up"></i>${game.i18n.localize("award-xp.award-xp")}</button>`)
+	const container = html.find(".directory-footer, .sidebar-footer, .app-footer, footer").first()
+	(container.length ? container : html).append(awardButton)
+	awardButton.on("click", (event) => {
+		event.preventDefault()
 		showAwardDialog()
 	})
-})
+}
 
 function registerKeybindings() {
 	game.keybindings.register(settingsKey, "showAwardDialog", {
@@ -39,49 +50,69 @@ function filterCharacters(pc) {
 		return isInFilter
 }
 
+function getDialogRoot(html) {
+	if (!html) return null
+	if (html.jquery) return html[0]
+	if (Array.isArray(html)) return html[0]
+	if (html instanceof HTMLElement) return html
+	if (html?.element instanceof HTMLElement) return html.element
+	return null
+}
+
 async function showAwardDialog() {
 	if (!game.user.isGM)
 		return
 	const secondaryFormula = getSecondaryFormula()
-	let secondaryName = undefined
-	if (secondaryFormula)
-		secondaryName = getSecondaryName() ?? "[secondary name missing]"
+	const secondaryName = secondaryFormula ? getSecondaryName() ?? "[secondary name missing]" : undefined
 
 	const characters = getPcs().filter(filterCharacters)
 	const data = {secondaryName, characters, showSoloXp: game.settings.get(settingsKey, "character-solo-xp-input")}
 	const content = await renderTemplate("modules/award-xp/templates/award_experience_dialog.html", data)
-	Dialog.prompt({
-		content: content,
-		label: game.i18n.localize("award-xp.award-xp"),
+
+	new DialogV2({
+		title: game.i18n.localize("award-xp.award-xp"),
+		content,
+		buttons: {
+			award: {
+				label: game.i18n.localize("award-xp.award-xp"),
+				callback: awardXP,
+			},
+			cancel: {
+				label: game.i18n.localize("award-xp.cancel") || "Cancel",
+				callback: () => {},
+			},
+		},
+		default: "award",
 		render: onAwardDialogRendered,
-		callback: awardXP,
 		rejectClose: false,
 		options: {
 			width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
-			jQuery: true,
 		},
-	})
+	}).render(true)
 }
 
 function onAwardDialogRendered(html) {
-	html.find("#award-xp-secondary-xp").keyup(onSecondaryChange)
+	const dialog = getDialogRoot(html)
+	dialog?.querySelector("#award-xp-secondary-xp")?.addEventListener("keyup", onSecondaryChange)
 }
 
 function awardXP(html) {
-	html = html[0]
-	let charIds = Array.from(html.querySelectorAll(".award-xp-char-selector")).filter(selector => selector.checked).map(selector => selector.name)
+	const dialog = getDialogRoot(html)
+	if (!dialog) return
+
+	let charIds = Array.from(dialog.querySelectorAll(".award-xp-char-selector")).filter(selector => selector.checked).map(selector => selector.name)
 	if (charIds.length === 0) {
 		throw game.i18n.localize("award-xp.no-char-selected")
 	}
 	const pcs = preparePcData(game.actors.filter(actor => charIds.includes(actor.id)))
-	const groupXp = parseInt(html.querySelector("#award-xp-xp").value)
+	const groupXp = parseInt(dialog.querySelector("#award-xp-xp")?.value)
 	if (isNaN(groupXp)) {
 		throw game.i18n.localize("award-xp.xp-nan")
 	}
 
-	const divideXp = game.settings.get(settingsKey, "divide-xp");
-	const charXp = divideXp ? Math.floor(groupXp / pcs.length) : groupXp;
-	let soloXpInputs = Array.from(html.querySelectorAll(".award-xp-solo"))
+	const divideXp = game.settings.get(settingsKey, "divide-xp")
+	const charXp = divideXp ? Math.floor(groupXp / pcs.length) : groupXp
+	const soloXpInputs = Array.from(dialog.querySelectorAll(".award-xp-solo"))
 	let soloXpPerCharacter = {}
 	pcs.forEach(pc => {
 		soloXpPerCharacter[pc.actor.id] = 0

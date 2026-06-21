@@ -2,10 +2,10 @@
 	"id": "award-xp",
 	"title": "Award XP",
 	"description": "Award Experience to the group, the value of which will awarded to each player, or divided evenly between the players and automatically update their character sheets.",
-	"version": "1.5.4",
+	"version": "2.0.0",
 	"compatibility": {
 		"minimum": "10",
-		"verified": "12"
+		"verified": "14"
 	},
 	"authors": [
 		{
@@ -44,12 +44,12 @@
 				"verified": "2.2.0"
 			}},	
 			{
-			"id": "pf1",
+			"id": "pf2e",
 			"type": "system",
-			"manifest": "https://gitlab.com/foundryvtt_pathfinder1e/foundryvtt-pathfinder1",
+			"manifest": "https://github.com/foundryvtt/pf2e",
 			"compatibility": {
-				"verified": "0.82.5"
-			}},
+				"verified": "8.2.0"
+			},
 			{
 			"id": "pf2e",
 			"type": "system",
@@ -104,7 +104,7 @@
 	],
 	"url": "https://github.com/dkstile4/foundryvtt-award-xp/",
 	"manifest": "https://raw.githubusercontent.com/dkstile4/foundryvtt-award-xp/develop/module.json",
-	"download": "https://github.com/dkstile4/foundryvtt-award-xp/archive/refs/tags/V1.5.4.zip",
+	"download": "https://github.com/dkstile4/foundryvtt-award-xp/archive/refs/tags/V2.0.0.zip",
 	"readme": "https://github.com/manuelVo/foundryvtt-award-xp/blob/master/README.md",
 	"changelog": "https://github.com/manuelVo/foundryvtt-award-xp/blob/master/CHANGELOG.md",
 	"bugs": "https://github.com/manuelVo/foundryvtt-award-xp/issues",
