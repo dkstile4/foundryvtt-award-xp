@@ -110,7 +110,7 @@ async function showAwardDialog() {
 		width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
 	}
 
-	const dialog = new DialogV2({config: dialogConfig, options: dialogOptions})
+	const dialog = new DialogV2(dialogConfig, dialogOptions)
 	dialog.render(true)
 }
 

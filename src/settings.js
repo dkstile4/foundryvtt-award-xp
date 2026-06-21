@@ -5,6 +5,9 @@ const mergeObject = foundry.utils.mergeObject;
 const api = foundry.applications.api || {}
 const BaseApplication = api.ApplicationV2 ?? Application;
 const BaseFormApplication = api.FormApplicationV2 ?? FormApplication;
+const HandlebarsApplication = api.HandlebarsApplicationMixin ?? globalThis.HandlebarsApplicationMixin;
+const ApplicationBase = HandlebarsApplication ? HandlebarsApplication(BaseApplication) : BaseApplication;
+const FormApplicationBase = HandlebarsApplication ? HandlebarsApplication(BaseFormApplication) : BaseFormApplication;
 
 export const settingsKey = "award-xp";
 
@@ -61,7 +64,7 @@ function getRootElement(element) {
 	return element?.[0] ?? element
 }
 
-class CharacterFilterApplication extends BaseFormApplication {
+class CharacterFilterApplication extends FormApplicationBase {
 	static get defaultOptions() {
 		return mergeObject(super.defaultOptions, {
 			id: "award-xp-edit-character-filter",
@@ -139,7 +142,7 @@ class CharacterFilterApplication extends BaseFormApplication {
 	}
 }
 
-class CharacterPickerApplication extends BaseApplication {
+class CharacterPickerApplication extends ApplicationBase {
 	constructor(options = {}) {
 		super(options)
 		this._parent = options.parent
