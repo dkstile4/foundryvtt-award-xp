@@ -45,7 +45,7 @@ export function registerSettings() {
 		type: Boolean,
 		default: getDivideXpDefault(),
 	})
-	registerSettingsAsync()
+	await registerSettingsAsync()
 }
 
 async function registerSettingsAsync() {
@@ -68,7 +68,8 @@ class CharacterFilterApplication extends BaseFormApplication {
 	}
 
 	activateListeners(root) {
-		const element = getRootElement(root)
+		super.activateListeners?.(root)
+		const element = getRootElement(root ?? this.element)
 		if (!element) return
 
 		element.querySelectorAll("input[name=isBlacklist]").forEach(input => {
@@ -77,7 +78,10 @@ class CharacterFilterApplication extends BaseFormApplication {
 
 		const addButton = element.querySelector("#award-xp-filter-add-character")
 		if (addButton) {
-			addButton.addEventListener("click", () => CharacterPickerApplication.open(this))
+			addButton.addEventListener("click", (event) => {
+				event.preventDefault()
+				CharacterPickerApplication.open(this)
+			})
 		}
 
 		element.querySelectorAll(".award-xp-remove-character").forEach(button => {
@@ -109,7 +113,7 @@ class CharacterFilterApplication extends BaseFormApplication {
 	}
 
 	async onCharacterRemoveClicked(event) {
-		const id = event.currentTarget.dataset.id
+		const id = event.currentTarget.dataset.actor ?? event.currentTarget.dataset.id
 		const characterFilter = game.settings.get(settingsKey, "character-filter")
 		const index = characterFilter.indexOf(id)
 		if (index !== -1) {
@@ -132,9 +136,9 @@ class CharacterFilterApplication extends BaseFormApplication {
 }
 
 class CharacterPickerApplication extends BaseApplication {
-	constructor(parent, options = {}) {
+	constructor(options = {}) {
 		super(options)
-		this.parent = parent
+		this.parent = options.parent
 	}
 
 	static get defaultOptions() {
@@ -147,7 +151,7 @@ class CharacterPickerApplication extends BaseApplication {
 	}
 
 	static open(parent) {
-		new CharacterPickerApplication(parent).render(true)
+		new CharacterPickerApplication({parent}).render(true)
 	}
 
 	getData(options = {}) {
@@ -156,7 +160,8 @@ class CharacterPickerApplication extends BaseApplication {
 	}
 
 	activateListeners(root) {
-		const element = getRootElement(root)
+		super.activateListeners?.(root)
+		const element = getRootElement(root ?? this.element)
 		if (!element) return
 		element.querySelectorAll(".award-xp-char").forEach(item => {
 			item.addEventListener("click", this.onCharacterClicked.bind(this))

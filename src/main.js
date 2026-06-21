@@ -105,9 +105,8 @@ async function showAwardDialog() {
 		default: "award",
 		render: onAwardDialogRendered,
 		rejectClose: false,
-		options: {
-			width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
-		},
+	}, {
+		width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
 	}).render(true)
 }
 
