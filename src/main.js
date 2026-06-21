@@ -84,7 +84,7 @@ async function showAwardDialog() {
 	const data = {secondaryName, characters, showSoloXp: game.settings.get(settingsKey, "character-solo-xp-input")}
 	const content = await renderTemplate("modules/award-xp/templates/award_experience_dialog.html", data)
 
-	new DialogV2({
+	new Dialog({
 		title: game.i18n.localize("award-xp.award-xp"),
 		content,
 		buttons: {

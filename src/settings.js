@@ -2,7 +2,13 @@ import {getDivideXpDefault} from "./systems.js";
 import {getPcs} from "./util.js"
 
 const mergeObject = foundry.utils.mergeObject;
-const BaseApplication = foundry.applications.api.ApplicationV2;
+const BaseApplication = (() => {
+	const api = foundry.applications.api
+	if (api?.HandlebarsApplicationMixin && api?.ApplicationV2) {
+		return api.HandlebarsApplicationMixin(api.ApplicationV2)
+	}
+	return Application
+})()
 
 export const settingsKey = "award-xp";
 
