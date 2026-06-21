@@ -150,14 +150,7 @@ class CharacterFilterApplication extends FormApplicationBase {
 	}
 
 	async rerender() {
-		const element = getRootElement(this.element)
-		if (element) {
-			element.style.width = null
-			element.style.height = null
-		}
-		this.position.width = undefined
-		this.position.height = undefined
-		return this.render(false)
+		return this.render(true)
 	}
 }
 
