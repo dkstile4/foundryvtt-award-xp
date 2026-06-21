@@ -89,7 +89,7 @@ async function showAwardDialog() {
 	const data = {secondaryName, characters, showSoloXp: game.settings.get(settingsKey, "character-solo-xp-input")}
 	const content = await renderTemplateAsync("modules/award-xp/templates/award_experience_dialog.html", data)
 
-	new DialogV2({
+	const dialogConfig = {
 		title: game.i18n.localize("award-xp.award-xp"),
 		content,
 		buttons: {
@@ -105,9 +105,13 @@ async function showAwardDialog() {
 		default: "award",
 		render: onAwardDialogRendered,
 		rejectClose: false,
-	}, {
+	}
+	const dialogOptions = {
 		width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
-	}).render(true)
+	}
+
+	const dialog = new DialogV2({config: dialogConfig, options: dialogOptions})
+	dialog.render(true)
 }
 
 function onAwardDialogRendered(html) {

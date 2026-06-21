@@ -142,7 +142,7 @@ class CharacterFilterApplication extends BaseFormApplication {
 class CharacterPickerApplication extends BaseApplication {
 	constructor(options = {}) {
 		super(options)
-		this.parent = options.parent
+		this._parent = options.parent
 	}
 
 	static get defaultOptions() {
@@ -173,7 +173,7 @@ class CharacterPickerApplication extends BaseApplication {
 	}
 
 	onCharacterClicked(event) {
-		this.parent.addCharacter(event.currentTarget.dataset.id)
+		this._parent?.addCharacter(event.currentTarget.dataset.id)
 		this.close()
 	}
 }
