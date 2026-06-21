@@ -68,10 +68,22 @@ function getCharacterFilter() {
 	const setting = game.settings.get(settingsKey, "character-filter")
 	if (!Array.isArray(setting)) return []
 	// Normalize entries to actor id strings in case older data stored objects
-	return setting.map(entry => {
+	const normalized = setting.map(entry => {
 		if (entry && typeof entry === "object") return String(entry.id ?? entry)
 		return String(entry)
 	})
+	// Prune any ids that no longer exist in the current actors list and persist the cleaned list
+	try {
+		const available = new Set(getPcs().map(pc => pc.id))
+		const pruned = normalized.filter(id => available.has(id))
+		if (pruned.length !== normalized.length) {
+			game.settings.set(settingsKey, "character-filter", pruned).catch(err => console.error("award-xp | Failed to persist pruned character-filter:", err))
+		}
+		return pruned
+	} catch (err) {
+		console.error("award-xp | getCharacterFilter error:", err)
+		return normalized
+	}
 }
 
 class CharacterFilterApplication extends FormApplicationBase {
