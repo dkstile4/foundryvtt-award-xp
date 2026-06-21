@@ -134,8 +134,8 @@ class CharacterFilterApplication extends FormApplicationBase {
 		if (!characterFilter.includes(id)) {
 			characterFilter.push(id)
 			await game.settings.set(settingsKey, "character-filter", characterFilter)
+			this.render(true)
 		}
-		this.rerender()
 	}
 
 	async onCharacterRemoveClicked(event) {
@@ -145,12 +145,10 @@ class CharacterFilterApplication extends FormApplicationBase {
 		if (index !== -1) {
 			characterFilter.splice(index, 1)
 			await game.settings.set(settingsKey, "character-filter", characterFilter)
-			this.rerender()
+			// Remove the row from DOM directly instead of full re-render
+			const row = event.currentTarget.closest("tr")
+			if (row) row.remove()
 		}
-	}
-
-	async rerender() {
-		return this.render(true)
 	}
 }
 
