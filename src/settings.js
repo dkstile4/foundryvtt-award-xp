@@ -2,13 +2,9 @@ import {getDivideXpDefault} from "./systems.js";
 import {getPcs} from "./util.js"
 
 const mergeObject = foundry.utils.mergeObject;
-const BaseApplication = (() => {
-	const api = foundry.applications.api
-	if (api?.HandlebarsApplicationMixin && api?.ApplicationV2) {
-		return api.HandlebarsApplicationMixin(api.ApplicationV2)
-	}
-	return Application
-})()
+const api = foundry.applications.api || {}
+const BaseApplication = api.ApplicationV2 ?? Application;
+const BaseFormApplication = api.FormApplicationV2 ?? FormApplication;
 
 export const settingsKey = "award-xp";
 
@@ -61,7 +57,7 @@ function getRootElement(element) {
 	return element?.[0] ?? element
 }
 
-class CharacterFilterApplication extends BaseApplication {
+class CharacterFilterApplication extends BaseFormApplication {
 	static get defaultOptions() {
 		return mergeObject(super.defaultOptions, {
 			id: "award-xp-edit-character-filter",

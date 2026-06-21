@@ -4,9 +4,14 @@ import {registerSettings, settingsKey} from "./settings.js"
 import {getSecondaryFormula, getSecondaryName, preparePcData} from "./systems.js"
 import {getPcs} from "./util.js";
 
+const renderTemplateAsync = async (...args) => {
+	return foundry.applications?.handlebars?.renderTemplate?.(...args) ?? renderTemplate(...args)
+}
 
-Hooks.once("init", () => {
-	registerSettings()
+const DialogV2 = foundry.applications?.api?.DialogV2 ?? Dialog;
+
+Hooks.once("init", async () => {
+	await registerSettings()
 	registerKeybindings();
 })
 
@@ -82,9 +87,9 @@ async function showAwardDialog() {
 
 	const characters = getPcs().filter(filterCharacters)
 	const data = {secondaryName, characters, showSoloXp: game.settings.get(settingsKey, "character-solo-xp-input")}
-	const content = await renderTemplate("modules/award-xp/templates/award_experience_dialog.html", data)
+	const content = await renderTemplateAsync("modules/award-xp/templates/award_experience_dialog.html", data)
 
-	new Dialog({
+	new DialogV2({
 		title: game.i18n.localize("award-xp.award-xp"),
 		content,
 		buttons: {
@@ -145,13 +150,13 @@ function awardXP(html) {
 
 async function renderAwardedMessage(charXp, pcs, soloXpPerCharacter) {
 	let message = {}
-	message.content = await renderTemplate("modules/award-xp/templates/awarded_experience_message.html", {xp: charXp, characters: pcs.map(pc => {return {name: pc.actor.name, bonusXp: soloXpPerCharacter[pc.actor.id] > 0 ? soloXpPerCharacter[pc.actor.id] : undefined}})})
+	message.content = await renderTemplateAsync("modules/award-xp/templates/awarded_experience_message.html", {xp: charXp, characters: pcs.map(pc => {return {name: pc.actor.name, bonusXp: soloXpPerCharacter[pc.actor.id] > 0 ? soloXpPerCharacter[pc.actor.id] : undefined}})})
 	ChatMessage.create(message)
 
 	const levelups = pcs.filter(pc => pc.newXp >= pc.nextLevelXp)
 	if (levelups.length > 0) {
 		let message = {}
-		message.content = await renderTemplate("modules/award-xp/templates/levelup_message.html", {characters: levelups.map(pc => pc.actor.name)})
+		message.content = await renderTemplateAsync("modules/award-xp/templates/levelup_message.html", {characters: levelups.map(pc => pc.actor.name)})
 		ChatMessage.create(message)
 	}
 }
