@@ -10,9 +10,9 @@ const renderTemplateAsync = async (...args) => {
 
 const DialogV2 = foundry.applications?.api?.DialogV2 ?? Dialog;
 
-Hooks.once("init", async () => {
-	await registerSettings()
+Hooks.once("init", () => {
 	registerKeybindings();
+	registerSettings();
 })
 
 Hooks.on("renderActorDirectory", (actorDirectory, html) => {

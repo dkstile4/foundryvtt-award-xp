@@ -49,8 +49,12 @@ export function registerSettings() {
 }
 
 async function registerSettingsAsync() {
-	const rowTemplate = await getTemplate("modules/award-xp/templates/edit_character_filter_dialog_table_row.html")
-	Handlebars.registerPartial("awardXpRowTemplate", rowTemplate)
+	try {
+		const rowTemplate = await getTemplate("modules/award-xp/templates/edit_character_filter_dialog_table_row.html")
+		Handlebars.registerPartial("awardXpRowTemplate", rowTemplate)
+	} catch (error) {
+		console.error("award-xp | Failed to register settings partial:", error)
+	}
 }
 
 function getRootElement(element) {
