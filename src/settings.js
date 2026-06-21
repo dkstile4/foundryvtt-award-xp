@@ -2,12 +2,10 @@ import {getDivideXpDefault} from "./systems.js";
 import {getPcs} from "./util.js"
 
 const mergeObject = foundry.utils.mergeObject;
-const api = foundry.applications.api || {}
-const BaseApplication = api.ApplicationV2 ?? Application;
-const BaseFormApplication = api.FormApplicationV2 ?? FormApplication;
-const HandlebarsApplication = api.HandlebarsApplicationMixin ?? globalThis.HandlebarsApplicationMixin;
-const ApplicationBase = HandlebarsApplication ? HandlebarsApplication(BaseApplication) : BaseApplication;
-const FormApplicationBase = HandlebarsApplication ? HandlebarsApplication(BaseFormApplication) : BaseFormApplication;
+const api = foundry.applications?.api ?? {}
+const HandlebarsApplication = api.HandlebarsApplicationMixin ?? foundry.applications?.HandlebarsApplicationMixin ?? globalThis.HandlebarsApplicationMixin;
+const ApplicationBase = HandlebarsApplication && api.ApplicationV2 ? HandlebarsApplication(api.ApplicationV2) : Application;
+const FormApplicationBase = HandlebarsApplication && api.FormApplicationV2 ? HandlebarsApplication(api.FormApplicationV2) : FormApplication;
 
 export const settingsKey = "award-xp";
 
@@ -106,7 +104,7 @@ class CharacterFilterApplication extends FormApplicationBase {
 	}
 
 	getData(options = {}) {
-		const characterFilter = game.settings.get(settingsKey, "character-filter")
+		const characterFilter = game.settings.get(settingsKey, "character-filter") ?? []
 		return {
 			characters: getPcs().filter(pc => characterFilter.includes(pc.id))
 		}
@@ -154,6 +152,8 @@ class CharacterPickerApplication extends ApplicationBase {
 			title: game.i18n.localize("award-xp.char-picker"),
 			template: "modules/award-xp/templates/character_picker_dialog.html",
 			classes: ["application", "award-xp-picker"],
+			width: 360,
+			height: "auto",
 		})
 	}
 
@@ -162,7 +162,7 @@ class CharacterPickerApplication extends ApplicationBase {
 	}
 
 	getData(options = {}) {
-		const characterFilter = game.settings.get(settingsKey, "character-filter")
+		const characterFilter = game.settings.get(settingsKey, "character-filter") ?? []
 		return {characters: getPcs().filter(pc => !characterFilter.includes(pc.id))}
 	}
 

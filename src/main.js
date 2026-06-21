@@ -10,6 +10,23 @@ const renderTemplateAsync = async (...args) => {
 
 const DialogV2 = foundry.applications?.api?.DialogV2 ?? Dialog;
 
+function createAwardDialog(config, options = {}) {
+	if (typeof DialogV2 !== "function") {
+		return new Dialog(config, options)
+	}
+	try {
+		return new DialogV2(config, options)
+	} catch (error) {
+		console.warn("award-xp | DialogV2 constructor failed with (config, options), retrying with merged config:", error)
+	}
+	try {
+		return new DialogV2({...config, ...options})
+	} catch (error) {
+		console.warn("award-xp | DialogV2 constructor failed with merged config, falling back to legacy Dialog:", error)
+		return new Dialog(config, options)
+	}
+}
+
 Hooks.once("init", async () => {
 	await registerSettings()
 	registerKeybindings();
@@ -110,7 +127,7 @@ async function showAwardDialog() {
 		width: game.settings.get(settingsKey, "character-solo-xp-input") ? 300 : 250,
 	}
 
-	const dialog = new DialogV2(dialogConfig, dialogOptions)
+	const dialog = createAwardDialog(dialogConfig, dialogOptions)
 	dialog.render(true)
 }
 
