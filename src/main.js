@@ -14,15 +14,11 @@ function createAwardDialog(config, options = {}) {
 	if (typeof DialogV2 !== "function") {
 		return new Dialog(config, options)
 	}
+	const dialogOptions = {...config, ...options}
 	try {
-		return new DialogV2(config, options)
+		return new DialogV2(dialogOptions)
 	} catch (error) {
-		console.warn("award-xp | DialogV2 constructor failed with (config, options), retrying with merged config:", error)
-	}
-	try {
-		return new DialogV2({...config, ...options})
-	} catch (error) {
-		console.warn("award-xp | DialogV2 constructor failed with merged config, falling back to legacy Dialog:", error)
+		console.warn("award-xp | DialogV2 constructor failed with options object, falling back to legacy Dialog:", error)
 		return new Dialog(config, options)
 	}
 }
@@ -106,19 +102,24 @@ async function showAwardDialog() {
 	const data = {secondaryName, characters, showSoloXp: game.settings.get(settingsKey, "character-solo-xp-input")}
 	const content = await renderTemplateAsync("modules/award-xp/templates/award_experience_dialog.html", data)
 
+	const dialogTitle = game.i18n.localize("award-xp.award-xp")
 	const dialogConfig = {
-		title: game.i18n.localize("award-xp.award-xp"),
+		title: dialogTitle,
+		window: { title: dialogTitle },
 		content,
-		buttons: {
-			award: {
-				label: game.i18n.localize("award-xp.award-xp"),
-				callback: awardXP,
+		buttons: [
+			{
+				action: "award",
+				label: dialogTitle,
+				callback: (_event, _button, dialog) => awardXP(dialog),
+				default: true,
 			},
-			cancel: {
+			{
+				action: "cancel",
 				label: game.i18n.localize("award-xp.cancel") || "Cancel",
 				callback: () => {},
 			},
-		},
+		],
 		default: "award",
 		render: onAwardDialogRendered,
 		rejectClose: false,

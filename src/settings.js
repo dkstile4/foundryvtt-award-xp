@@ -4,8 +4,10 @@ import {getPcs} from "./util.js"
 const mergeObject = foundry.utils.mergeObject;
 const api = foundry.applications?.api ?? {}
 const HandlebarsApplication = api.HandlebarsApplicationMixin ?? foundry.applications?.HandlebarsApplicationMixin ?? globalThis.HandlebarsApplicationMixin;
-const ApplicationBase = HandlebarsApplication && api.ApplicationV2 ? HandlebarsApplication(api.ApplicationV2) : Application;
-const FormApplicationBase = HandlebarsApplication && api.FormApplicationV2 ? HandlebarsApplication(api.FormApplicationV2) : FormApplication;
+const ApplicationClass = api.ApplicationV2 ?? foundry.applications?.ApplicationV2 ?? Application;
+const FormApplicationClass = api.FormApplicationV2 ?? foundry.applications?.FormApplicationV2 ?? FormApplication;
+const ApplicationBase = HandlebarsApplication ? HandlebarsApplication(ApplicationClass) : ApplicationClass;
+const FormApplicationBase = HandlebarsApplication ? HandlebarsApplication(FormApplicationClass) : FormApplicationClass;
 
 export const settingsKey = "award-xp";
 
@@ -62,6 +64,11 @@ function getRootElement(element) {
 	return element?.[0] ?? element
 }
 
+function getCharacterFilter() {
+	const setting = game.settings.get(settingsKey, "character-filter")
+	return Array.isArray(setting) ? setting : []
+}
+
 class CharacterFilterApplication extends FormApplicationBase {
 	static get defaultOptions() {
 		return mergeObject(super.defaultOptions, {
@@ -104,14 +111,14 @@ class CharacterFilterApplication extends FormApplicationBase {
 	}
 
 	getData(options = {}) {
-		const characterFilter = game.settings.get(settingsKey, "character-filter") ?? []
+		const characterFilter = getCharacterFilter()
 		return {
 			characters: getPcs().filter(pc => characterFilter.includes(pc.id))
 		}
 	}
 
 	async addCharacter(id) {
-		const characterFilter = game.settings.get(settingsKey, "character-filter")
+		const characterFilter = getCharacterFilter()
 		characterFilter.push(id)
 		await game.settings.set(settingsKey, "character-filter", characterFilter)
 		this.rerender()
@@ -162,8 +169,10 @@ class CharacterPickerApplication extends ApplicationBase {
 	}
 
 	getData(options = {}) {
-		const characterFilter = game.settings.get(settingsKey, "character-filter") ?? []
-		return {characters: getPcs().filter(pc => !characterFilter.includes(pc.id))}
+		const characterFilter = getCharacterFilter()
+		return {
+			characters: getPcs().filter(pc => !characterFilter.includes(pc.id))
+		}
 	}
 
 	activateListeners(root) {
