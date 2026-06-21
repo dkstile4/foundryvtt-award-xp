@@ -1,6 +1,9 @@
 import {getDivideXpDefault} from "./systems.js";
 import {getPcs} from "./util.js"
 
+const mergeObject = foundry.utils.mergeObject;
+const BaseApplication = foundry.applications.api.ApplicationV2;
+
 export const settingsKey = "award-xp";
 
 export function registerSettings() {
@@ -48,39 +51,53 @@ async function registerSettingsAsync() {
 	Handlebars.registerPartial("awardXpRowTemplate", rowTemplate)
 }
 
-class CharacterFilterApplication extends FormApplication {
+function getRootElement(element) {
+	return element?.[0] ?? element
+}
+
+class CharacterFilterApplication extends BaseApplication {
 	static get defaultOptions() {
 		return mergeObject(super.defaultOptions, {
 			id: "award-xp-edit-character-filter",
 			title: game.i18n.localize("award-xp.settings.filter-character.name"),
 			template: "modules/award-xp/templates/edit_character_filter_dialog.html",
+			classes: ["application", "award-xp-filter"],
 		})
 	}
 
-	activateListeners(html) {
-		super.activateListeners(html)
-		html.find("input[name=isBlacklist]").change(this.onListTypeChanged)
-		html.find("#award-xp-filter-add-character").click(() => CharacterPickerApplication.open(this))
-		html.find(".award-xp-remove-character").click(this.onCharacterRemoveClicked.bind(this))
+	activateListeners(root) {
+		const element = getRootElement(root)
+		if (!element) return
+
+		element.querySelectorAll("input[name=isBlacklist]").forEach(input => {
+			input.addEventListener("change", this.onListTypeChanged.bind(this))
+		})
+
+		const addButton = element.querySelector("#award-xp-filter-add-character")
+		if (addButton) {
+			addButton.addEventListener("click", () => CharacterPickerApplication.open(this))
+		}
+
+		element.querySelectorAll(".award-xp-remove-character").forEach(button => {
+			button.addEventListener("click", this.onCharacterRemoveClicked.bind(this))
+		})
+
+		const isBlacklist = game.settings.get(settingsKey, "character-filter-is-blacklist")
+		const selectedInput = element.querySelector(`input[name=isBlacklist][value=${isBlacklist}]`)
+		if (selectedInput) selectedInput.checked = true
 	}
 
 	onListTypeChanged(event) {
-		game.settings.set(settingsKey, "character-filter-is-blacklist", this.value == "true")
+		const value = event.target?.value
+		game.settings.set(settingsKey, "character-filter-is-blacklist", value === "true")
 	}
 
-	getData(options={}) {
-		const data = {}
+	getData(options = {}) {
 		const characterFilter = game.settings.get(settingsKey, "character-filter")
-		data.characters = getPcs().filter(pc => characterFilter.includes(pc.id))
-		return data
+		return {
+			characters: getPcs().filter(pc => characterFilter.includes(pc.id))
+		}
 	}
-
-	async _renderInner(...args) {
-		const html = await super._renderInner(...args);
-		const isBlacklist = game.settings.get(settingsKey, "character-filter-is-blacklist")
-		html.find(`input[name=isBlacklist][value=${isBlacklist}]`).prop("checked", true)
-		return html;
-	  }
 
 	async addCharacter(id) {
 		const characterFilter = game.settings.get(settingsKey, "character-filter")
@@ -92,23 +109,28 @@ class CharacterFilterApplication extends FormApplication {
 	async onCharacterRemoveClicked(event) {
 		const id = event.currentTarget.dataset.id
 		const characterFilter = game.settings.get(settingsKey, "character-filter")
-		characterFilter.splice(characterFilter.indexOf(id), 1)
-		await game.settings.set(settingsKey, "character-filter", characterFilter)
-		this.rerender()
+		const index = characterFilter.indexOf(id)
+		if (index !== -1) {
+			characterFilter.splice(index, 1)
+			await game.settings.set(settingsKey, "character-filter", characterFilter)
+			this.rerender()
+		}
 	}
 
-	// Rerender with recalculation of width and height
 	async rerender() {
-		this.element[0].style.width = null
-		this.element[0].style.height = null
+		const element = getRootElement(this.element)
+		if (element) {
+			element.style.width = null
+			element.style.height = null
+		}
 		this.position.width = undefined
 		this.position.height = undefined
 		return this.render(false)
 	}
 }
 
-class CharacterPickerApplication extends Application {
-	constructor (parent, options={}) {
+class CharacterPickerApplication extends BaseApplication {
+	constructor(parent, options = {}) {
 		super(options)
 		this.parent = parent
 	}
@@ -118,6 +140,7 @@ class CharacterPickerApplication extends Application {
 			id: "award-xp-character-picker",
 			title: game.i18n.localize("award-xp.char-picker"),
 			template: "modules/award-xp/templates/character_picker_dialog.html",
+			classes: ["application", "award-xp-picker"],
 		})
 	}
 
@@ -125,14 +148,17 @@ class CharacterPickerApplication extends Application {
 		new CharacterPickerApplication(parent).render(true)
 	}
 
-	getData(options={}) {
+	getData(options = {}) {
 		const characterFilter = game.settings.get(settingsKey, "character-filter")
 		return {characters: getPcs().filter(pc => !characterFilter.includes(pc.id))}
 	}
 
-	activateListeners(html) {
-		super.activateListeners(html)
-		html.find(".award-xp-char").click((event) => this.onCharacterClicked(event))
+	activateListeners(root) {
+		const element = getRootElement(root)
+		if (!element) return
+		element.querySelectorAll(".award-xp-char").forEach(item => {
+			item.addEventListener("click", this.onCharacterClicked.bind(this))
+		})
 	}
 
 	onCharacterClicked(event) {

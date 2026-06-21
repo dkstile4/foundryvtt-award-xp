@@ -19,14 +19,29 @@ Hooks.on("renderSidebarTab", (app, html) => {
 	}
 })
 
+function getElementRoot(html) {
+	if (!html) return null
+	if (html.jquery) return html[0]
+	if (html instanceof HTMLElement) return html
+	if (html?.element instanceof HTMLElement) return html.element
+	if (Array.isArray(html) && html[0] instanceof HTMLElement) return html[0]
+	return null
+}
+
 function addAwardXpButtonToActorDirectory(actorDirectory, html) {
 	if (!game.user.isGM) return
-	if (html.find(".award-xp-open-dialog").length) return
+	const root = getElementRoot(html) || getElementRoot(actorDirectory?.element)
+	if (!root) return
+	if (root.querySelector(".award-xp-open-dialog")) return
 
-	const awardButton = $(`<button type="button" class="award-xp-open-dialog"><i class="fas fa-angle-double-up"></i>${game.i18n.localize("award-xp.award-xp")}</button>`)
-	const container = html.find(".directory-footer, .sidebar-footer, .app-footer, footer").first()
-	(container.length ? container : html).append(awardButton)
-	awardButton.on("click", (event) => {
+	const awardButton = document.createElement("button")
+	awardButton.type = "button"
+	awardButton.className = "award-xp-open-dialog"
+	awardButton.innerHTML = `<i class="fas fa-angle-double-up"></i>${game.i18n.localize("award-xp.award-xp")}`
+
+	const container = root.querySelector(".directory-footer, .sidebar-footer, .app-footer, footer")
+	;(container || root).append(awardButton)
+	awardButton.addEventListener("click", (event) => {
 		event.preventDefault()
 		showAwardDialog()
 	})
