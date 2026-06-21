@@ -119,14 +119,16 @@ class CharacterFilterApplication extends FormApplicationBase {
 
 	async addCharacter(id) {
 		const characterFilter = getCharacterFilter()
-		characterFilter.push(id)
-		await game.settings.set(settingsKey, "character-filter", characterFilter)
+		if (!characterFilter.includes(id)) {
+			characterFilter.push(id)
+			await game.settings.set(settingsKey, "character-filter", characterFilter)
+		}
 		this.rerender()
 	}
 
 	async onCharacterRemoveClicked(event) {
 		const id = event.currentTarget.dataset.actor ?? event.currentTarget.dataset.id
-		const characterFilter = game.settings.get(settingsKey, "character-filter")
+		const characterFilter = getCharacterFilter()
 		const index = characterFilter.indexOf(id)
 		if (index !== -1) {
 			characterFilter.splice(index, 1)
@@ -165,7 +167,12 @@ class CharacterPickerApplication extends ApplicationBase {
 	}
 
 	static open(parent) {
-		new CharacterPickerApplication({parent}).render(true)
+		const picker = new CharacterPickerApplication({parent})
+		if (typeof parent?.renderChild === "function") {
+			parent.renderChild(picker)
+		} else {
+			picker.render(true)
+		}
 	}
 
 	getData(options = {}) {
