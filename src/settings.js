@@ -66,7 +66,12 @@ function getRootElement(element) {
 
 function getCharacterFilter() {
 	const setting = game.settings.get(settingsKey, "character-filter")
-	return Array.isArray(setting) ? setting : []
+	if (!Array.isArray(setting)) return []
+	// Normalize entries to actor id strings in case older data stored objects
+	return setting.map(entry => {
+		if (entry && typeof entry === "object") return String(entry.id ?? entry)
+		return String(entry)
+	})
 }
 
 class CharacterFilterApplication extends FormApplicationBase {
@@ -101,7 +106,7 @@ class CharacterFilterApplication extends FormApplicationBase {
 		})
 
 		const isBlacklist = game.settings.get(settingsKey, "character-filter-is-blacklist")
-		const selectedInput = element.querySelector(`input[name=isBlacklist][value=${isBlacklist}]`)
+		const selectedInput = element.querySelector(`input[name=isBlacklist][value="${isBlacklist}"]`)
 		if (selectedInput) selectedInput.checked = true
 	}
 
